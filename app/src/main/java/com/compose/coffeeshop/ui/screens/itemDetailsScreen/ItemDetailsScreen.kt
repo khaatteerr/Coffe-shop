@@ -1,8 +1,6 @@
 package com.compose.coffeeshop.ui.screens.itemDetailsScreen
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -35,6 +33,7 @@ import com.compose.coffeeshop.R
 import com.compose.coffeeshop.ui.screens.detailsScreen.SizeOptionMenu
 import com.compose.coffeeshop.ui.screens.detailsScreen.addAnimation
 import com.compose.coffeeshop.ui.theme.*
+import kotlinx.coroutines.delay
 
 @Composable
 fun ItemDetailsScreen() {
@@ -162,6 +161,17 @@ fun Drink_Image_Size() {
                 repeatMode = RepeatMode.Reverse
             )
         )
+
+        val infiniteTransitionOvalToUP by infiniteTransition.animateFloat(
+            initialValue = 50f,
+            targetValue = 60f,
+
+            animationSpec = infiniteRepeatable(
+                animation = tween(2000),
+                repeatMode = RepeatMode.Reverse
+            )
+        )
+
         val infiniteTransitionScaleImage by animateFloatAsState(
             targetValue = scaleImageState,
             animationSpec = tween(1000)
@@ -185,13 +195,14 @@ fun Drink_Image_Size() {
                 modifier = Modifier
                     .size(200.dp)
                     .scale(infiniteTransitionScaleImage)
+
             )
 
             Canvas(modifier = Modifier, onDraw = {
                 drawOval(
                     color = Color.Black.copy(alpha = 0.5f),
                     alpha = 0.5f,
-                    topLeft = Offset(x = -130f, y = 50f),
+                    topLeft = Offset(x = -130f, y = infiniteTransitionOvalToUP),
                     size = Size(height = 50F, width = infiniteTransitionOvalCornerShape),
                 )
             })
@@ -296,21 +307,39 @@ fun AddItemsToCart(onAddItem: () -> Unit, onRemoveItem: () -> Unit, _state: Int)
             color = ItemScreenTextColor, textAlign = TextAlign.Center,
             fontSize = 11.sp
         )
+        var visibleState by remember {
+            mutableStateOf(true)
+        }
+
+        LaunchedEffect(Unit) {
+            while (true) {
+                visibleState = !visibleState
+                delay(3000)
+            }
+        }
+
 
         for (i in 1..3) {
-            Icon(
-                modifier = Modifier.size(20.dp),
-                painter = rememberVectorPainter(Icons.Default.KeyboardArrowUp),
-                contentDescription = "Swipe up for product detail",
-                tint = when (i) {
-                    2 -> ItemScreenTextColor.copy(alpha = 0.6f)
-                    3 -> ItemScreenTextColor.copy(alpha = 0.4f)
-                    else -> {
-                        ItemScreenTextColor.copy(alpha = 1f)
+            AnimatedVisibility(
+                visibleState,
+                enter = slideInVertically { it } + fadeIn(),
+                exit = slideOutVertically { -it } + fadeOut()
+            ) {
+                Icon(
+                    modifier = Modifier
+                        .size(20.dp),
+                    painter = rememberVectorPainter(Icons.Default.KeyboardArrowUp),
+                    contentDescription = "Swipe up for product detail",
+                    tint = when (i) {
+                        2 -> ItemScreenTextColor.copy(alpha = 0.6f)
+                        3 -> ItemScreenTextColor.copy(alpha = 0.4f)
+                        else -> {
+                            ItemScreenTextColor.copy(alpha = 1f)
+                        }
                     }
-                }
 
-            )
+                )
+            }
 
 
         }

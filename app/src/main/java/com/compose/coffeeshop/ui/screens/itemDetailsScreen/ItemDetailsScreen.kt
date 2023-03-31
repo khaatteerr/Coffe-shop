@@ -45,7 +45,7 @@ fun ItemDetailsContent() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(itemScreenBackground)
+            .background(ItemScreenBackground)
             .padding(horizontal = 30.dp)
     ) {
 

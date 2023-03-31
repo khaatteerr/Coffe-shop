@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.compose.coffeeshop.R
 import com.compose.coffeeshop.ui.screens.homeScreen.composable.ChipsItem
@@ -44,6 +45,8 @@ import com.compose.coffeeshop.ui.screens.homeScreen.composable.RecommendationIte
 import com.compose.coffeeshop.ui.screens.homeScreen.viewModel.HomeViewModel
 import com.compose.coffeeshop.ui.screens.homeScreen.viewModel.state.ChipsItemContent
 import com.compose.coffeeshop.ui.screens.homeScreen.viewModel.state.HomePromoCardList
+import com.compose.coffeeshop.ui.screens.homeScreen.viewModel.state.RecommendationDrinks
+import com.compose.coffeeshop.ui.screens.navigation.Screen
 import com.compose.coffeeshop.ui.theme.*
 import com.google.accompanist.pager.*
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -54,6 +57,7 @@ import kotlin.math.absoluteValue
 @ExperimentalPagerApi
 @Composable
 fun HomeScreen(
+    navController: NavController,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val systemUiController = rememberSystemUiController()
@@ -63,12 +67,14 @@ fun HomeScreen(
 
     val state by homeViewModel.state.collectAsState()
 
-    HomeContent(state)
+    HomeContent(state ){
+        navController.navigate(Screen.ItemDetailsScreen.passItemId(it.id))
+    }
 }
 
 @ExperimentalPagerApi
 @Composable
-fun HomeContent(state: HomePromoCardList) {
+fun HomeContent(state: HomePromoCardList, onRecommendationClick: (RecommendationDrinks)->Unit) {
     Column(
         Modifier
             .fillMaxSize()
@@ -78,7 +84,7 @@ fun HomeContent(state: HomePromoCardList) {
         SearchField()
         ChipsSection()
         PromoCardSection(state)
-        RecommendationSection(state)
+        RecommendationSection(state , onRecommendationClick)
 
     }
 }
@@ -286,7 +292,7 @@ fun PromoCardSection(state: HomePromoCardList) {
 }
 
 @Composable
-fun RecommendationSection(state: HomePromoCardList) {
+fun RecommendationSection(state: HomePromoCardList, onRecommendationClick: (RecommendationDrinks)->Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -311,9 +317,9 @@ fun RecommendationSection(state: HomePromoCardList) {
             )
         }
 
-        LazyRow  {
+        LazyRow {
             items(state.recommendationDrinks) {
-                RecommendationItem(state = it)
+                RecommendationItem(state = it,onRecommendationClick)
             }
         }
 

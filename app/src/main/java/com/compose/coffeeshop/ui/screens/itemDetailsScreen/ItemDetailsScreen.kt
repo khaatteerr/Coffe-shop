@@ -29,19 +29,35 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import com.compose.coffeeshop.R
 import com.compose.coffeeshop.ui.screens.detailsScreen.SizeOptionMenu
 import com.compose.coffeeshop.ui.screens.detailsScreen.addAnimation
+import com.compose.coffeeshop.ui.screens.homeScreen.viewModel.state.RecommendationDrinks
+import com.compose.coffeeshop.ui.screens.itemDetailsScreen.viewModel.ItemDetailsViewModel
+import com.compose.coffeeshop.ui.screens.itemDetailsScreen.viewModel.state.ItemSizeOptionState
 import com.compose.coffeeshop.ui.theme.*
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.delay
 
 @Composable
-fun ItemDetailsScreen() {
-    ItemDetailsContent()
+fun ItemDetailsScreen(
+    navController: NavController,
+    itemDetailsViewModel: ItemDetailsViewModel = hiltViewModel()
+) {
+    val systemUiController = rememberSystemUiController()
+    systemUiController.setSystemBarsColor(
+        color = ItemScreenBackground
+    )
+    val state by itemDetailsViewModel.state.collectAsState()
+
+    ItemDetailsContent(state)
 }
 
 @Composable
-fun ItemDetailsContent() {
+fun ItemDetailsContent(state: RecommendationDrinks) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -54,8 +70,8 @@ fun ItemDetailsContent() {
         }
 
         HeaderRowContent()
-        Drink_Name_Price()
-        Drink_Image_Size()
+        Drink_Name_Price(state)
+        Drink_Image_Size(state)
         AddItemsToCart(
             onAddItem = { counterState++ },
             onRemoveItem = { counterState-- },
@@ -99,7 +115,7 @@ fun HeaderRowContent() {
 }
 
 @Composable
-fun Drink_Name_Price() {
+fun Drink_Name_Price(state: RecommendationDrinks) {
     Column(
         modifier = Modifier
             .padding(top = 50.dp)
@@ -108,7 +124,7 @@ fun Drink_Name_Price() {
         horizontalAlignment = CenterHorizontally
     ) {
         Text(
-            text = "Caramel Frappuccino",
+            text = state.drinkName,
             fontFamily = Rubik,
             fontSize = 18.sp,
             color = ItemScreenTextColor,
@@ -123,7 +139,7 @@ fun Drink_Name_Price() {
                 textAlign = TextAlign.Center
             )
             Text(
-                text = "30.00",
+                text = state.drinkPrice.toString(),
                 fontFamily = Rubik,
                 fontSize = 20.sp,
                 color = ItemScreenPrice_Selection,
@@ -137,7 +153,7 @@ fun Drink_Name_Price() {
 }
 
 @Composable
-fun Drink_Image_Size() {
+fun Drink_Image_Size(state: RecommendationDrinks) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -190,7 +206,7 @@ fun Drink_Image_Size() {
         Column(verticalArrangement = Arrangement.Center, horizontalAlignment = CenterHorizontally) {
 
             Image(
-                painter = painterResource(id = R.drawable.caramel_frappuccino),
+                painter = rememberAsyncImagePainter(model = state.drinkUrl),
                 contentDescription = "Drink image",
                 modifier = Modifier
                     .size(200.dp)
@@ -208,7 +224,6 @@ fun Drink_Image_Size() {
             })
 
         }
-
 
     }
 

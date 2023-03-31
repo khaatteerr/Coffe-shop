@@ -2,9 +2,9 @@ package com.compose.coffeeshop.ui.screens.homeScreen.composable
 
 import android.graphics.PorterDuff
 import android.widget.RatingBar
-import androidx.compose.animation.AnimatedContentScope.SlideDirection.Companion.Start
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
@@ -27,14 +27,18 @@ import com.compose.coffeeshop.ui.screens.homeScreen.viewModel.state.Recommendati
 import com.compose.coffeeshop.ui.theme.*
 
 @Composable
-fun RecommendationItem(state: RecommendationDrinks) {
+fun RecommendationItem(
+    state: RecommendationDrinks,
+    onRecommendationClick: (RecommendationDrinks) -> Unit
+) {
     Column(
         modifier = Modifier
             .height(200.dp)
             .width(200.dp)
             .padding(start = 20.dp, end = 10.dp, top = 0.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.White),
+            .background(Color.White)
+            .clickable { onRecommendationClick(state) },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 

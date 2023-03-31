@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.compose.coffeeshop.ui.screens.itemDetailsScreen.ItemSizeOptionState
+import com.compose.coffeeshop.ui.screens.itemDetailsScreen.viewModel.state.ItemSizeOptionState
 import com.compose.coffeeshop.ui.theme.ItemScreenPrice_Selection
 import com.compose.coffeeshop.ui.theme.ItemScreenTextColor
 import com.compose.coffeeshop.ui.theme.Rubik

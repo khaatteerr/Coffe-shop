@@ -12,6 +12,7 @@ data class HomePromoCard(
 )
 
 data class RecommendationDrinks(
+    val id: Int = 0,
     val drinkName: String = "",
     val drinkUrl: String = "",
     val drinkPrice: Double = 0.0,

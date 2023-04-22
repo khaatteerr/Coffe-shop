@@ -1,11 +1,15 @@
 package com.compose.coffeeshop.ui.screens.navigation
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.painterResource
@@ -41,7 +45,20 @@ fun BottomNavigationBar(
                     Column(horizontalAlignment = CenterHorizontally) {
                         if (item.badgeCount > 0) {
                             BadgedBox(badge = {
-                                Text(text = item.badgeCount.toString())
+                                Box(
+                                    modifier
+                                        .size(15.dp)
+                                        .clip(CircleShape)
+                                        .background(ItemScreenBackground), contentAlignment = Center
+                                ) {
+                                    Text(
+                                        text = item.badgeCount.toString(),
+                                        color = Color.White,
+                                        fontFamily = Rubik,
+                                        fontSize = 10.sp
+                                    )
+                                }
+
                             }) {
                                 Icon(
                                     modifier = Modifier.size(30.dp),

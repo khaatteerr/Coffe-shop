@@ -93,7 +93,7 @@ fun RecommendationItem(
             ).apply {
                 rating = state.rate
                 progressDrawable.setColorFilter(
-                    android.graphics.Color.parseColor("#FFD700"),
+                    android.graphics.Color.parseColor("#FF5195A0"), //FFD700
                     PorterDuff.Mode.SRC_ATOP
                 )
             }

@@ -7,15 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.material.Scaffold
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
@@ -26,9 +18,6 @@ import com.compose.coffeeshop.ui.screens.navigation.CoffeShopNavGraph
 import com.compose.coffeeshop.ui.screens.navigation.Screen
 import com.compose.coffeeshop.ui.theme.CoffeeShopTheme
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.google.accompanist.navigation.animation.navigation
-import com.google.accompanist.navigation.animation.composable
-import com.compose.coffeeshop.ui.screens.navigation.Screen.ItemDetailsScreen.route as route1
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalAnimationApi::class)
@@ -48,20 +37,23 @@ fun CoffeShopApp() {
                 BottomNavigationBar(
                     items = listOf(
                         BottomNavigationItem(
-                            "Home", Screen.HomeScreen.route, Icons.Default.Home,
+                            "Home", Screen.HomeScreen.route, ImageVector.vectorResource(id = R.drawable.ic_home),
                         ),
                         BottomNavigationItem(
-                            "Favorite", Screen.FavoriteScreen.route, Icons.Default.Favorite,
+                            "Favorite", Screen.FavoriteScreen.route, ImageVector.vectorResource(id = R.drawable.ic_heart),
                         ),
                         BottomNavigationItem(
-                            "Cart", Screen.CartScreen.route, Icons.Default.ShoppingCart,
+                            "Cart", Screen.CartScreen.route, ImageVector.vectorResource(id = R.drawable.ic_shop),3
                         ),
                         BottomNavigationItem(
-                            "Wallet", Screen.WalletScreen.route, ImageVector.vectorResource(id = R.drawable.wallet_nav),
+                            "Wallet", Screen.WalletScreen.route, ImageVector.vectorResource(id = R.drawable.ic_profile),
                         )
                     ), navController = navController
                 ) {
-                    navController.navigate(it.route)
+                    navController.navigate(it.route){
+                        launchSingleTop = true
+                    }
+
                 }
             }
         }) {

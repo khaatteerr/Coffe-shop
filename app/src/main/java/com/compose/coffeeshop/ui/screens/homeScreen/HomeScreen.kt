@@ -6,11 +6,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
@@ -24,9 +23,10 @@ import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -67,14 +67,14 @@ fun HomeScreen(
 
     val state by homeViewModel.state.collectAsState()
 
-    HomeContent(state ){
+    HomeContent(state) {
         navController.navigate(Screen.ItemDetailsScreen.passItemId(it.id))
     }
 }
 
 @ExperimentalPagerApi
 @Composable
-fun HomeContent(state: HomePromoCardList, onRecommendationClick: (RecommendationDrinks)->Unit) {
+fun HomeContent(state: HomePromoCardList, onRecommendationClick: (RecommendationDrinks) -> Unit) {
     Column(
         Modifier
             .fillMaxSize()
@@ -84,7 +84,7 @@ fun HomeContent(state: HomePromoCardList, onRecommendationClick: (Recommendation
         SearchField()
         ChipsSection()
         PromoCardSection(state)
-        RecommendationSection(state , onRecommendationClick)
+        RecommendationSection(state, onRecommendationClick)
 
     }
 }
@@ -166,7 +166,7 @@ private fun SearchField() {
 
             ) {
                 Icon(
-                    painter = rememberVectorPainter(image = Icons.Default.Search),
+                    ImageVector.vectorResource(id = R.drawable.ic_search),
                     contentDescription = "searchMenu",
                     tint = ItemScreenBackground,
                     modifier = Modifier
@@ -224,7 +224,8 @@ fun PromoCardSection(state: HomePromoCardList) {
             fontWeight = FontWeight.Bold
         )
         HorizontalPager(
-            state = pagerState, modifier = Modifier
+            state = pagerState,
+            modifier = Modifier
 
                 .height(170.dp)
 
@@ -254,7 +255,7 @@ fun PromoCardSection(state: HomePromoCardList) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .align(Center)
+
                         .background(ItemScreenBackground)
                 ) {
                     Image(
@@ -271,7 +272,7 @@ fun PromoCardSection(state: HomePromoCardList) {
                         textAlign = TextAlign.Start,
                         fontWeight = FontWeight.Bold,
                         fontFamily = Rubik,
-                        fontSize = 20.sp
+                        fontSize = 18.sp
                     )
                 }
 
@@ -292,7 +293,10 @@ fun PromoCardSection(state: HomePromoCardList) {
 }
 
 @Composable
-fun RecommendationSection(state: HomePromoCardList, onRecommendationClick: (RecommendationDrinks)->Unit) {
+fun RecommendationSection(
+    state: HomePromoCardList,
+    onRecommendationClick: (RecommendationDrinks) -> Unit
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -317,9 +321,9 @@ fun RecommendationSection(state: HomePromoCardList, onRecommendationClick: (Reco
             )
         }
 
-        LazyRow {
+        LazyRow(state = rememberLazyListState()) {
             items(state.recommendationDrinks) {
-                RecommendationItem(state = it,onRecommendationClick)
+                RecommendationItem(state = it, onRecommendationClick)
             }
         }
 

@@ -1,17 +1,17 @@
 package com.compose.coffeeshop.ui.screens.itemDetailsScreen
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -23,6 +23,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -33,6 +34,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.compose.coffeeshop.R
+import com.compose.coffeeshop.local.roomDatabase.Drink
+import com.compose.coffeeshop.local.roomDatabase.DrinkEvent
 import com.compose.coffeeshop.ui.screens.detailsScreen.SizeOptionMenu
 import com.compose.coffeeshop.ui.screens.detailsScreen.addAnimation
 import com.compose.coffeeshop.ui.screens.homeScreen.viewModel.state.RecommendationDrinks
@@ -40,7 +43,9 @@ import com.compose.coffeeshop.ui.screens.itemDetailsScreen.viewModel.ItemDetails
 import com.compose.coffeeshop.ui.screens.itemDetailsScreen.viewModel.state.ItemSizeOptionState
 import com.compose.coffeeshop.ui.theme.*
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun ItemDetailsScreen(
@@ -52,12 +57,36 @@ fun ItemDetailsScreen(
         color = ItemScreenBackground
     )
     val state by itemDetailsViewModel.state.collectAsState()
+    val drinkState by itemDetailsViewModel.drinkState.collectAsState()
+   // val onEvent = itemDetailsViewModel::onEvent
 
-    ItemDetailsContent(state)
+
+    val drink = state.copy(
+        drinkName = state.drinkName,
+        drinkPrice = state.drinkPrice,
+        drinkUrl = state.drinkUrl,
+        rate = state.rate,
+        isLiked = state.isLiked
+    )
+    val _drink = Drink(
+        drinkName = state.drinkName,
+        drinkPrice = state.drinkPrice,
+        drinkUrl = state.drinkUrl,
+        rate = state.rate,
+        isLiked = state.isLiked,
+        id = state.id
+    )
+
+    ItemDetailsContent(drink, _drink, itemDetailsViewModel)
+
 }
 
 @Composable
-fun ItemDetailsContent(state: RecommendationDrinks) {
+fun ItemDetailsContent(
+    state: RecommendationDrinks,
+    drink: Drink,
+    itemDetailsViewModel: ItemDetailsViewModel
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -68,26 +97,43 @@ fun ItemDetailsContent(state: RecommendationDrinks) {
         var counterState by remember {
             mutableStateOf(1)
         }
+        var price by remember {
+            mutableStateOf(state.drinkPrice)
+        }
+        Log.d("ACAac", "ItemDetailsContent: $price")
 
-        HeaderRowContent()
-        Drink_Name_Price(state)
+        HeaderRowContent(drink, state, itemDetailsViewModel)
+        Drink_Name_Price(state.copy(drinkPrice = price))
         Drink_Image_Size(state)
         AddItemsToCart(
-            onAddItem = { counterState++ },
-            onRemoveItem = { counterState-- },
+            onAddItem = {
+                counterState++
+                price += state.drinkPrice
+            },
+            onRemoveItem = {
+                if (counterState != 1) {
+                    counterState--
+                    price -= state.drinkPrice
+                }
+            },
             counterState
         )
     }
 }
 
 @Composable
-fun HeaderRowContent() {
+fun HeaderRowContent(
+    drink: Drink,
+
+    state: RecommendationDrinks,
+    itemDetailsViewModel: ItemDetailsViewModel
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 10.dp),
         verticalAlignment = CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(60.dp)
+        horizontalArrangement = Arrangement.SpaceBetween
 
     ) {
         Box(
@@ -97,20 +143,82 @@ fun HeaderRowContent() {
 
 
             ) {
+            val context = LocalContext.current
             Icon(
                 painter = rememberVectorPainter(image = Icons.Default.KeyboardArrowLeft),
                 contentDescription = "Back to main screen",
-                modifier = Modifier.padding(10.dp),
+                modifier = Modifier
+                    .padding(10.dp),
                 tint = Color.White
             )
         }
-        Text(
-            text = "Item Details",
-            fontFamily = Rubik,
-            fontSize = 18.sp,
-            color = ItemScreenTextColor,
-            textAlign = TextAlign.Center
-        )
+//        Text(
+//            text = "Item Details",
+//            fontFamily = Rubik,
+//            fontSize = 18.sp,
+//            color = ItemScreenTextColor,
+//            textAlign = TextAlign.Center
+//        )
+        var favState by remember {
+            mutableStateOf(false)
+        }
+        val scope = rememberCoroutineScope()
+
+//        IconButton(onClick = {
+//            scope.launch {
+//                itemDetailsViewModel.removeFromFavorite(drink)
+//            }
+//
+////                onEvent(DrinkEvent.AddDrink(drink))
+////                onEvent(DrinkEvent.ShowIsLiked)
+//
+//
+//            //state.isLiked = true
+//        }) {
+//            Icon(
+//                Icons.Default.Favorite,
+//                contentDescription = "delete contact",
+//                tint = if (state.isLiked) Color.Black else Color.White
+//            )
+//        }
+        val context = LocalContext.current
+
+        var btnState by remember {
+            mutableStateOf(state.isLiked)
+        }
+        IconToggleButton(
+            checked = btnState, onCheckedChange = {
+                btnState = !btnState
+
+                if (btnState) {
+
+                    Toast.makeText(context,"is added",Toast.LENGTH_LONG).show()
+                    scope.launch(Dispatchers.IO) {
+                        itemDetailsViewModel.addToFavorite(state)
+                    }
+                }
+                else {
+
+                    Toast.makeText(context,"is removed",Toast.LENGTH_LONG).show()
+                    scope.launch(Dispatchers.IO) {
+                        itemDetailsViewModel.removeFromFavorite(state.id)
+                    }
+                }
+
+            }
+
+        ) {
+            Icon(
+                tint = if (btnState) Color.Red else Color.White,
+                imageVector = if (btnState) {
+                    Icons.Filled.Favorite
+                } else {
+                    Icons.Default.FavoriteBorder
+                },
+                contentDescription = "deletecontact",
+
+                )
+        }
     }
 }
 
@@ -130,11 +238,11 @@ fun Drink_Name_Price(state: RecommendationDrinks) {
             color = ItemScreenTextColor,
             textAlign = TextAlign.Center
         )
-        Row(modifier = Modifier.padding(top = 15.dp)) {
+        Row(modifier = Modifier.padding(top = 15.dp), verticalAlignment = CenterVertically) {
             Text(
                 text = "$",
                 fontFamily = Rubik,
-                fontSize = 18.sp,
+                fontSize = 20.sp,
                 color = ItemScreenPrice_Selection,
                 textAlign = TextAlign.Center
             )
@@ -249,12 +357,16 @@ fun AddItemsToCart(onAddItem: () -> Unit, onRemoveItem: () -> Unit, _state: Int)
             var state by remember {
                 mutableStateOf(false)
             }
+            val interactionSource = remember { MutableInteractionSource() }
+
             Box(
                 Modifier
                     .size(40.dp)
-
                     .border(1.dp, ItemScreenTextColor, shape = CircleShape)
-                    .clickable {
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
                         state = false
                         onRemoveItem()
                     },
@@ -283,7 +395,10 @@ fun AddItemsToCart(onAddItem: () -> Unit, onRemoveItem: () -> Unit, _state: Int)
 
                     .size(40.dp)
                     .border(1.dp, ItemScreenTextColor, shape = CircleShape)
-                    .clickable {
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
                         state = true
                         onAddItem()
 

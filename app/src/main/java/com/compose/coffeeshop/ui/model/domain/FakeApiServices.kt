@@ -12,10 +12,8 @@ class FakeApiServices {
             RecommendationDrinks(3,"Espresso","https://i.ibb.co/XSGJhJL/pngegg-1.png",15.0,3.5f),
             RecommendationDrinks(4,"Mocha","https://i.ibb.co/GFZMFg1/pngegg-2.png",30.0,4.8f),
             RecommendationDrinks(5,"Chai Tea Latte","https://i.ibb.co/sRk7CW2/pngegg-3.png",25.0,4.2f),
-            RecommendationDrinks(6,"Iced Tea","https://i.ibb.co/Q95Rqrm/pngwing-com.png",10.0,3.0f)
-
-
-    )
+            RecommendationDrinks(6,"Iced Tea","https://i.ibb.co/Q95Rqrm/pngwing-com.png",10.0,3.0f),
+        )
 
     private val promoCards = listOf(
         HomePromoCard(
@@ -43,7 +41,7 @@ class FakeApiServices {
     fun getAllRecommendationDrinks():List<RecommendationDrinks> = recommendationDrinks
 
     fun getRecommendationDrinkById(id:Int):RecommendationDrinks{
-        return recommendationDrinks[id]
+         return recommendationDrinks[id]
     }
 
     fun getPromoCards() = promoCards
